@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 
 from token_gen import generate_token
 
-load_dotenv()
+load_dotenv("../.env")
 
 app = FastAPI()
 
