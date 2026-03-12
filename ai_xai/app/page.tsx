@@ -3,10 +3,12 @@ import Header from "@/components/Header";
 import Heading from "@/components/Heading";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Home() {
     const [images, setImages] = useState<Array<string>>([]);
+    const router = useRouter();
 
     useEffect(() => {
         fetch("http://localhost:8000/images")
@@ -34,7 +36,7 @@ export default function Home() {
                             width={200}
                             alt={e}
                             className="cursor-pointer"
-                            onClick={() => console.log(e)}
+                            onClick={() => router.push(`/predict?image=${e}`)}
                         />
                     ))}
                 </div>
