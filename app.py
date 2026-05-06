@@ -7,11 +7,23 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
+from pytorch_grad_cam.utils.image import show_cam_on_image
 from PIL import Image
 
 from token_gen import generate_token
+from resnet import get_resnet34
+from resnet.trainer import get_transforms
+
+path_to_model = Path('./model/resnet34.pth')
+
+model = get_resnet34()
+model.load(path_to_model, "cpu")
+
+transforms = get_transforms()
 
 load_dotenv("../.env")
+
+labels = os.environ["LABELS"].split(",")
 
 app = FastAPI()
 app.add_middleware(
@@ -41,8 +53,29 @@ def upload():
 
 
 @app.post("/predict")
-def predict(file: UploadFile):
+def predict(file: UploadFile) -> dict:
     img = Image.open(file.file).convert("RGB")
+    x = transforms(img)
+    pred = model.predict(x.unsqueeze(0))
+
+    return {
+        "label": labels[int(pred.argmax().item())],
+        "target": pred.argmax().item(),
+        "probs": pred.squeeze().tolist()
+    }
+
+@app.post("/gradcam")
+def gradcam(file: UploadFile, target: int):
+    img = Image.open(file.file).convert("RGB")
+    x = transforms(img)
+    gradcam = model.get_gradcam(x, target=target)
+
+    img = Image.fromarray(show_cam_on_image(
+        x.permute(1, 2, 0).numpy(),
+        gradcam.numpy(),
+        use_rgb=True,
+    ))
+
     buf = BytesIO()
     img.save(buf, format="JPEG", quality=95)
     buf.seek(0)
