@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "@/consts/urls";
 import Header from "@/components/Header";
 import Heading from "@/components/Heading";
 import Image from "next/image";
@@ -25,7 +26,7 @@ export default function Predict() {
     let url: string | undefined;
     (async () => {
       const image = encodeURIComponent(searchParams.get("image") ?? "");
-      const res = await fetch(`http://localhost:8000/images?image=${image}`);
+      const res = await fetch(`${API_URL}/api/v1/images?image=${image}`);
       const blob = await res.blob();
       url = URL.createObjectURL(blob);
       setImgBlob(blob);
@@ -48,7 +49,7 @@ export default function Predict() {
           }),
         );
 
-        const res = await fetch("http://localhost:8080/predict", {
+        const res = await fetch(`${API_URL}/api/v1/predict`, {
           method: "POST",
           body: fd,
         });
@@ -59,7 +60,7 @@ export default function Predict() {
         const target = pred.target;
 
         const gradRes = await fetch(
-          `http://localhost:8080/gradcam?target=${target}`,
+          `${API_URL}/api/v1/gradcam?target=${target}`,
           {
             method: "POST",
             body: fd,
