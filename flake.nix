@@ -12,11 +12,11 @@
       stdenv.cc.cc.lib
       zlib
 
-      xorg.libxcb
-      xorg.libX11
-      xorg.libXext
-      xorg.libSM
-      xorg.libICE
+      libxcb
+      libX11
+      libXext
+      libSM
+      libICE
       libGL
 
       glib
@@ -27,6 +27,8 @@
     devShells.${system}.default = pkgs.mkShell {
       packages = with pkgs; [
         uv
+        nodejs
+        pnpm
       ];
 
       LD_LIBRARY_PATH = libPath;
