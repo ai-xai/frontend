@@ -11,8 +11,9 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 from pytorch_grad_cam.utils.image import show_cam_on_image
-from resnet import get_resnet34
 from resnet.trainer import get_transforms
+
+from resnet import get_resnet34
 from token_gen import generate_token, validate_token
 
 load_dotenv()
@@ -127,7 +128,7 @@ async def upload(token: str, file: UploadFile) -> dict:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     content = await file.read()
-    filename = file.filename or str(datetime.now())
+    filename = f"{file.filename}_{datetime.now()}" or str(datetime.now())
     path = UPLOAD_PATH / filename
     with open(path, "wb") as f:
         f.write(content)
